@@ -44,10 +44,28 @@ class Parser:
         else:
             self.error(f"Unexpected token: {self.current_token.type}")
 
-    def parse_variable_declaration(self):
-        # TODO: Implement parsing for variable declarations
-        # Example: let age as int;
-        pass
+    def parse_if_statement(self):
+        condition = None
+        body = None
+
+    # expect 'if' keyword
+        self.expect('KEYWORD', 'if')
+        self.expect('OPEN_PAREN', '(')
+
+        condition = self.parse_expression()
+
+        self.expect('CLOSE_PAREN', ')')
+        self.expect('OPEN_BRACE', '{')
+
+        body = self.parse_statements()
+
+        self.expect('CLOSE_BRACE', '}')
+
+        return {
+            'type': 'if',
+            'condition': condition,
+            'body': body
+        }
 
     def parse_if_statement(self):
         # TODO: Implement parsing for if statements
