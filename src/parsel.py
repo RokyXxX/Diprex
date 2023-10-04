@@ -175,9 +175,35 @@ class Parser:
         pass
 
     def parse_try_catch_statement(self):
-        # TODO: Implement parsing for try-catch statements
-        # Example: try { ... } catch (err/error) { ... }
-        pass
+        try_block = None
+        catch_block = None
+
+        # expect 'try' keyword
+        self.expect('KEYWORD', 'try')
+        self.expect('OPEN_BRACE', '{')
+
+        try_block = self.parse_statements()
+
+        self.expect('CLOSE_BRACE', '}')
+
+        # expect 'catch' keyword
+        self.expect('KEYWORD', 'catch')
+
+        self.expect('OPEN_PAREN', '(')
+        exception_variable = self.expect('IDENTIFIER')
+        self.expect('CLOSE_PAREN', ')')
+        self.expect('OPEN_BRACE', '{')
+
+        catch_block = self.parse_statements()
+
+        self.expect('CLOSE_BRACE', '}')
+
+        return {
+            'type': 'try_catch',
+            'try_block': try_block,
+            'exception_variable': exception_variable,
+            'catch_block': catch_block
+        }
 
     def error(self, message):
-        raise Exception(f"Parser Error: {message}")
+        raise Exception(f"DipRex [ERROR]: Error while parsing: {message}")
