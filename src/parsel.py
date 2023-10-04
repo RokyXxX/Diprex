@@ -107,9 +107,31 @@ class Parser:
         }
 
     def parse_class_definition(self):
-        # TODO: Implement parsing for class definitions
-        # Example: class Person { constructor(name as string, age as int) { ... } }
-        pass
+        name = None
+        properties = []
+
+        # expect 'class' keyword
+        self.expect('KEYWORD', 'class')
+
+        name = self.expect('IDENTIFIER')
+
+        self.expect('OPEN_BRACE', '{')
+
+        while self.current_token.type != 'CLOSE_BRACE':
+            prop_name = self.expect('IDENTIFIER')
+            self.expect('AS')
+            prop_type = self.expect('IDENTIFIER')
+            properties.append({'name': prop_name, 'type': prop_type})
+            if self.current_token.type == 'COMMA':
+                self.advance()
+
+        self.expect('CLOSE_BRACE', '}')
+
+        return {
+            'type': 'class',
+            'name': name,
+            'properties': properties
+        }
 
     def parse_import_statement(self):
         # TODO: Implement parsing for import statements
