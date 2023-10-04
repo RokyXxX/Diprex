@@ -11,12 +11,15 @@ TOKEN_TYPES = {
     'SEMICOLON': r';',
     'COLON': r':',
     'COMMA': r',',
+    'DOT': r'.',
     'SINGLE_LINE_COMMENT': r'\/\/[^\n]*',
     'MULTI_LINE_COMMENT': r'\/\*.*?\*\/',
     'OPEN_BRACE': r'{',
     'CLOSE_BRACE': r'}',
     'OPEN_PAREN': r'\(',
     'CLOSE_PAREN': r'\)',
+    'WHITESPACE': r'\s+',
+    'NEWLINE': r'\n',
 }
 
 # creating "combined" regex pattern..
@@ -54,7 +57,7 @@ class Lexer:
 
 # example:
 if __name__ == '__main__':
-    code = 'let age as int; if age > 18 { print("You are an adult."); }'
+    code = 'let age as int; if age > 18 { printStatement.print("You are an adult."); }'
     lexer = Lexer(code)
     tokens = lexer.lex()
     for token in tokens:
