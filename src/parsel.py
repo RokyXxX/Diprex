@@ -134,9 +134,31 @@ class Parser:
         }
 
     def parse_import_statement(self):
-        # TODO: Implement parsing for import statements
-        # Example: import { xyz, pqr } from abc as 'idk';
-        pass
+        # expect 'import' keyword
+        self.expect('KEYWORD', 'import')
+
+        # parse imports (for simple life, let's think of importing everything)
+        self.expect('OPEN_BRACE', '{')
+        self.expect('IDENTIFIER')
+        while self.current_token.type == 'COMMA':
+            self.advance()
+            self.expect('IDENTIFIER')
+            self.expect('CLOSE_BRACE', '}')
+
+        # expect 'from' keyword
+        self.expect('KEYWORD', 'from')
+
+        module_name = self.expect('IDENTIFIER')
+
+        # expect 'as' keyword and alias
+        self.expect('KEYWORD', 'as')
+        alias = self.expect('STRING')['value']
+
+        return {
+            'type': 'import',
+            'module_name': module_name,
+            'alias': alias
+        }
 
     def parse_export_statement(self):
         # TODO: Implement parsing for export statements
