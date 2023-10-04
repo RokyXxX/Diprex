@@ -1,0 +1,13 @@
+# Compiled output
+*.pyc
+
+# Virtual environment
+venv/
+
+# IDE-specific files
+.vscode/
+.idea/
+.venv/
+
+# Dependency directories
+__pycache__/
