@@ -2,18 +2,19 @@ import re
 
 # token types
 TOKEN_TYPES = {
+    'SINGLE_LINE_COMMENT': r'\/\/[^\n]*',
+    'MULTI_LINE_COMMENT': r'\/\*.*?\*\/|\/\*[^*]*\*+([^/*][^*]*\*+)*\/',
     'KEYWORD': r'(let|if|else|loop|function|public|private|class|import|export|try|catch|new|async)',
     'IDENTIFIER': r'[a-zA-Z_][a-zA-Z0-9_]*',
     'NUMBER': r'\d+(\.\d+)?',
     'STRING': r'"[^"]*"',
+    'SINGLE_QUOTED_STRING': r"'[^']*'",
     'BOOL': r'(true|false)',
-    'OPERATOR': r'(\+|-|\*|\/|==|!=|<|>|<=|>=|&|\|)',
+    'OPERATOR': r'(\+|-|\*|\/|==|!=|<|>|<=|>=|&|\||=)',
     'SEMICOLON': r';',
     'COLON': r':',
     'COMMA': r',',
-    'DOT': r'.',
-    'SINGLE_LINE_COMMENT': r'\/\/[^\n]*',
-    'MULTI_LINE_COMMENT': r'\/\*.*?\*\/',
+    'DOT': r'\.',
     'OPEN_BRACE': r'{',
     'CLOSE_BRACE': r'}',
     'OPEN_PAREN': r'\(',
@@ -35,14 +36,24 @@ class Token:
         return f'Token({self.type}, {self.value})'
 
 class Lexer:
-    def __init__(self, code):
-        self.code = code
+    def __init__(self, filename):
+        self.filename = filename
         self.tokens = []
         self.pos = 0
 
-    def lex(self):
-        while self.pos < len(self.code):
-            match = TOKEN_REGEX.match(self.code, self.pos)
+    def tokenize(self):
+        try:
+            with open(self.filename, 'r') as file:
+                code = file.read()
+                self.lex(code)
+                return self.tokens
+        except FileNotFoundError:
+            print(f"Error: File '{self.filename}' not found.")
+            return []
+
+    def lex(self, code):
+        while self.pos < len(code):
+            match = TOKEN_REGEX.match(code, self.pos)
             if match:
                 token_type = match.lastgroup
                 token_value = match.group(token_type)
@@ -51,15 +62,12 @@ class Lexer:
                 self.pos = match.end()
             else:
                 # raise error when char not in dictionary..
-                raise ValueError(f"Invalid character: {self.code[self.pos]}")
-
-        return self.tokens
+                raise ValueError(f"Invalid character: {code[self.pos]}")
 
 # example:
 if __name__ == '__main__':
-    code = 'let age as int; if age > 18 { printStatement.print("You are an adult."); }'
-    lexer = Lexer(code)
-    tokens = lexer.lex()
+    filename = '../diprex/test.dpr'
+    lexer = Lexer(filename)
+    tokens = lexer.tokenize()
     for token in tokens:
         print(token)
-# TODO: get code FROM source file "*.dpr"
