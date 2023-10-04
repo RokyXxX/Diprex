@@ -11,8 +11,8 @@ class Parser:
             self.current_index += 1
 
     def parse(self):
-        self.advance()  # Start with the first token
-        self.ast = self.parse_statements()  # Parse statements at the top-level
+        self.advance()
+        self.ast = self.parse_statements()
         return self.ast
 
     def parse_statements(self):
@@ -21,7 +21,14 @@ class Parser:
             statement = self.parse_statement()
             if statement:
                 statements.append(statement)
+            self.eat('SEMICOLON')
         return statements
+    
+    def eat(self, expected_type):
+        if self.current_token.type == expected_type:
+            self.advance()
+        else:
+            self.error(f"Expected '{expected_type}' but found '{self.current_token.type}'")
 
     def parse_statement(self):
         if self.current_token.type == 'KEYWORD' and self.current_token.value == 'let':
@@ -60,6 +67,7 @@ class Parser:
         body = self.parse_statements()
 
         self.expect('CLOSE_BRACE', '}')
+        self.eat('SEMICOLON')
 
         return {
             'type': 'if',
@@ -68,9 +76,34 @@ class Parser:
         }
 
     def parse_variable_declaration(self):
-        # TODO: Implement parsing for variable declarations
-        # Example: let yomama as boolean, yomama = false
-        pass
+        name = None
+        data_type = None
+
+        # expect 'let' keyword
+        self.expect('KEYWORD', 'let')
+
+        name = self.expect('IDENTIFIER')
+
+        # expect 'as' keyword
+        self.expect('KEYWORD', 'as')
+
+        data_type = self.expect('IDENTIFIER')
+
+        # checking for optional init.
+        initialization = None
+        if self.current_token.type == 'OPERATOR' and self.current_token.value == '=':
+            self.advance()  # Move past '='
+            initialization = self.parse_expression()
+
+        # expect semicolon to end the declaration
+        self.eat('SEMICOLON')
+
+        return {
+            'type': 'variable_declaration',
+            'name': name,
+            'data_type': data_type,
+            'initialization': initialization
+        }
 
     def parse_function_definition(self):
         name = None
@@ -98,6 +131,7 @@ class Parser:
         body = self.parse_statements()
 
         self.expect('CLOSE_BRACE', '}')
+        self.eat('SEMICOLON')
 
         return {
             'type': 'function',
@@ -126,6 +160,7 @@ class Parser:
                 self.advance()
 
         self.expect('CLOSE_BRACE', '}')
+        self.eat('SEMICOLON')
 
         return {
             'type': 'class',
@@ -153,6 +188,7 @@ class Parser:
         # expect 'as' keyword and alias
         self.expect('KEYWORD', 'as')
         alias = self.expect('STRING')['value']
+        self.eat('SEMICOLON')
 
         return {
             'type': 'import',
@@ -167,6 +203,7 @@ class Parser:
         # expect 'default' keyword and exported thing
         self.expect('KEYWORD', 'default')
         exported_item = self.expect('IDENTIFIER')
+        self.eat('SEMICOLON')
 
         return {
             'type': 'export',
@@ -197,6 +234,7 @@ class Parser:
         catch_block = self.parse_statements()
 
         self.expect('CLOSE_BRACE', '}')
+        self.eat('SEMICOLON')
 
         return {
             'type': 'try_catch',
