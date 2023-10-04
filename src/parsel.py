@@ -48,7 +48,7 @@ class Parser:
         condition = None
         body = None
 
-    # expect 'if' keyword
+        # expect 'if' keyword
         self.expect('KEYWORD', 'if')
         self.expect('OPEN_PAREN', '(')
 
@@ -67,15 +67,44 @@ class Parser:
             'body': body
         }
 
-    def parse_if_statement(self):
-        # TODO: Implement parsing for if statements
-        # Example: if age > 18 { printStatement.print("You are an adult."); }
+    def parse_variable_declaration(self):
+        # TODO: Implement parsing for variable declarations
+        # Example: let yomama as boolean, yomama = false
         pass
 
     def parse_function_definition(self):
-        # TODO: Implement parsing for function definitions
-        # Example: function greet(person as string){ return "Hi, " + person + "!"; }
-        pass
+        name = None
+        parameters = []
+        body = None
+
+        # expect 'function' keyword
+        self.expect('KEYWORD', 'function')
+
+        name = self.expect('IDENTIFIER')
+
+        self.expect('OPEN_PAREN', '(')
+
+        while self.current_token.type != 'CLOSE_PAREN':
+            param_name = self.expect('IDENTIFIER')
+            self.expect('AS')
+            param_type = self.expect('IDENTIFIER')
+            parameters.append({'name': param_name, 'type': param_type})
+            if self.current_token.type == 'COMMA':
+                self.advance()
+
+        self.expect('CLOSE_PAREN', ')')
+        self.expect('OPEN_BRACE', '{')
+
+        body = self.parse_statements()
+
+        self.expect('CLOSE_BRACE', '}')
+
+        return {
+            'type': 'function',
+            'name': name,
+            'parameters': parameters,
+            'body': body
+        }
 
     def parse_class_definition(self):
         # TODO: Implement parsing for class definitions
