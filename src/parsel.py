@@ -161,8 +161,17 @@ class Parser:
         }
 
     def parse_export_statement(self):
-        # TODO: Implement parsing for export statements
-        # Example: export default lollipop;
+        # expect 'export' keyword
+        self.expect('KEYWORD', 'export')
+
+        # expect 'default' keyword and exported thing
+        self.expect('KEYWORD', 'default')
+        exported_item = self.expect('IDENTIFIER')
+
+        return {
+            'type': 'export',
+            'exported_item': exported_item
+        }
         pass
 
     def parse_try_catch_statement(self):
